@@ -25,7 +25,7 @@ The following software will be setup
 ## How it run
 
 - Playbook execute all task on local machine on where it run.
-
+- If you want to setup for multiple user, multiple remote machine, please check the [dynamic branch](https://github.com/haryHuds0n/zorinos.ansible/tree/dynamic), this branch support one user only.
 ## How to run
 
 **Note**
