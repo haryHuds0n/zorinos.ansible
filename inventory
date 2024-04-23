@@ -1,0 +1,3 @@
+[workstation]
+192.168.1.10 ansible_user={ e.g. sysadmin } ansible_ssh_pass={ e.g. sysadmin ssh password } user=dev1
+192.168.1.11 ansible_user={ e.g. sysadmin } ansible_ssh_pass={ e.g. sysadmin ssh password } user=dev2

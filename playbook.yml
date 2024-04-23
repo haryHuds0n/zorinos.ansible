@@ -1,8 +1,7 @@
 ---
 ######### Zulip
 - name: Zulip
-  hosts: localhost
-  connection: local
+  hosts: all
   tasks:
     - name: Download zulip asc
       ansible.builtin.get_url:
@@ -26,53 +25,50 @@
 
 ######### Vscode
 - name: Vscode
-  hosts: localhost
-  connection: local
+  hosts: all
   tasks:
     - name: Download vscode package
       ansible.builtin.get_url:
         url: https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64
-        dest: "{{ ansible_env.HOME }}/Downloads/vscode.deb"
+        dest: /home/{{ user }}/Downloads/vscode.deb
       become: true
       become_method: sudo
 
     - name: Install vscode .deb package
       ansible.builtin.apt:
-        deb: "{{ ansible_env.HOME }}/Downloads/vscode.deb"
+        deb: /home/{{ user }}/Downloads/vscode.deb
       become: true
       become_method: sudo
 
 ######### Google Chrome
 - name: Google Chrome
-  hosts: localhost
-  connection: local
+  hosts: all
   tasks:
     - name: Download google chrome package
       ansible.builtin.get_url:
         url: https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-        dest: "{{ ansible_env.HOME }}/Downloads/google-chrome.deb"
+        dest: /home/{{ user }}/Downloads/google-chrome.deb
       become: true
       become_method: sudo
 
     - name: Install google chrome .deb package
       ansible.builtin.apt:
-        deb: "{{ ansible_env.HOME }}/Downloads/google-chrome.deb"
+        deb: /home/{{ user }}/Downloads/google-chrome.deb
       become: true
       become_method: sudo
 
 ######### Postman
 - name: Postman
-  hosts: localhost
-  connection: local
+  hosts: all
   tasks:
     - name: Download postman archive
       ansible.builtin.get_url:
         url: https://dl.pstmn.io/download/latest/linux_64
-        dest: "{{ ansible_env.HOME }}/Downloads/postman.tar.gz"
+        dest: /home/{{ user }}/Downloads/postman.tar.gz
 
     - name: Extract postman.tar.gz
       ansible.builtin.unarchive:
-        src: "{{ ansible_env.HOME }}/Downloads/postman.tar.gz"
+        src: /home/{{ user }}/Downloads/postman.tar.gz
         dest: /opt/
         remote_src: yes
       become: true
@@ -96,17 +92,16 @@
 
 ######### Telegram
 - name: Telegram
-  hosts: localhost
-  connection: local
+  hosts: all
   tasks:
     - name: Download telegram archive
       ansible.builtin.get_url:
         url: https://telegram.org/dl/desktop/linux
-        dest: "{{ ansible_env.HOME }}/Downloads/tsetup.tar.xz"
+        dest: /home/{{ user }}/Downloads/tsetup.tar.xz
 
     - name: Extract telegram.tar.xz
       ansible.builtin.unarchive:
-        src: "{{ ansible_env.HOME }}/Downloads/tsetup.tar.xz"
+        src: /home/{{ user }}/Downloads/tsetup.tar.xz
         dest: /opt/
         remote_src: yes
       become: true
@@ -130,20 +125,19 @@
 
 ######### Create Linux Desktop Icon Shorcut
 - name: Desktop Shorcut
-  hosts: localhost
-  connection: local
+  hosts: all
   tasks:
     - name: Copy Application File into Desktop
       ansible.builtin.shell: |
-        cp /usr/share/applications/code.desktop "{{ ansible_env.HOME }}/Desktop"
-        cp /usr/share/applications/google-chrome.desktop "{{ ansible_env.HOME }}/Desktop"
-        cp /usr/share/applications/telegram.desktop "{{ ansible_env.HOME }}/Desktop"
-        cp /usr/share/applications/postman.desktop "{{ ansible_env.HOME }}/Desktop"
-        cp /usr/share/applications/zulip.desktop "{{ ansible_env.HOME }}/Desktop"
-    
+        cp /usr/share/applications/code.desktop /home/{{ user }}/Desktop
+        cp /usr/share/applications/google-chrome.desktop /home/{{ user }}/Desktop
+        cp /usr/share/applications/telegram.desktop /home/{{ user }}/Desktop
+        cp /usr/share/applications/postman.desktop /home/{{ user }}/Desktop
+        cp /usr/share/applications/zulip.desktop /home/{{ user }}/Desktop
+
     - name: lookup files with a certain pattern
       find:
-        paths: "{{ ansible_env.HOME }}/Desktop/"
+        paths: "/home/{{ user }}/Desktop/"
         file_type: file
         patterns: "*.desktop"
       register: filelist
@@ -151,15 +145,19 @@
     - name: Change file ownership, group and permissions
       ansible.builtin.file:
         path: "{{ item.path }}"
-        owner: "{{ ansible_env.USER }}"
-        group: "{{ ansible_env.USER }}"
+        owner: "{{ user }}"
+        group: "{{ user }}"
         mode: '750'
       with_items: "{{ filelist.files }}"
 
+    - name: Mark File Executable
+      ansible.builtin.shell: |
+        chmod +x /home/{{ user }}/Desktop/*.desktop
+    
     - name: Mark Application Trusted
       ansible.builtin.shell: |
-        gio set {{ ansible_env.HOME }}/Desktop/code.desktop metadata::trusted true
-        gio set {{ ansible_env.HOME }}/Desktop/google-chrome.desktop metadata::trusted true
-        gio set {{ ansible_env.HOME }}/Desktop/telegram.desktop metadata::trusted true
-        gio set {{ ansible_env.HOME }}/Desktop/postman.desktop metadata::trusted true
-        gio set {{ ansible_env.HOME }}/Desktop/zulip.desktop metadata::trusted true
+        gio set /home/{{ user }}/Desktop/code.desktop metadata::trusted true
+        gio set /home/{{ user }}/Desktop/google-chrome.desktop metadata::trusted true
+        gio set /home/{{ user }}/Desktop/telegram.desktop metadata::trusted true
+        gio set /home/{{ user }}/Desktop/postman.desktop metadata::trusted true
+        gio set /home/{{ user }}/Desktop/zulip.desktop metadata::trusted true
